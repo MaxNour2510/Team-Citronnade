@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Citronnade - Carte Pokémon Collector</title>
+  <style>
+    /* --------------------------
+       Police Pokémon Solid
+    -------------------------- */
+    @font-face {
+      font-family: "PokemonSolid";
+      src: url("pokémon-solide.ttf") format("truetype");
+    }
+
+    /* --------------------------
+       Styles généraux
+    -------------------------- */
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: radial-gradient(circle at top, #fffbe6, #ffe97d, #ffcf33);
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      font-family: "PokemonSolid", 'Poppins', sans-serif;
+      font-size: 1.5rem;
+      color: #333;
+      text-shadow: 0 0 10px #fff9cc;
+      margin-bottom: 20px;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --------------------------
+       Carte et animation
+    -------------------------- */
+    .card-container {
+      perspective: 1200px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      width: 320px;
+      height: 450px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s;
+      cursor: pointer;
+    }
+
+    .side {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      backface-visibility: hidden;
+      overflow: hidden;
+    }
+
+    .front {
+      background: url('1000035141.png') center/cover no-repeat;
+      animation: holo 6s linear infinite;
+    }
+
+    .back {
+      background: url('1000035162.png') center/cover no-repeat;
+      transform: rotateY(180deg);
+      animation: holo 6s linear infinite reverse;
+    }
+
+    /* Effet holographique argenté doux */
+    @keyframes holo {
+      0% { filter: brightness(0.95) contrast(1.05) saturate(1); }
+      25% { filter: brightness(1.05) contrast(1.1) saturate(1.05); }
+      50% { filter: brightness(1) contrast(1.1) saturate(0.95); }
+      75% { filter: brightness(1.08) contrast(1.15) saturate(1); }
+      100% { filter: brightness(0.95) contrast(1.05) saturate(1); }
+    }
+
+    /* Reflet de lumière */
+    .shine {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(120deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.05) 100%);
+      transform: rotate(25deg);
+      animation: shineMove 4s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes shineMove {
+      0% { transform: translateX(-100%) rotate(25deg); }
+      100% { transform: translateX(100%) rotate(25deg); }
+    }
+
+    /* --------------------------
+       Confettis
+    -------------------------- */
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: hsl(var(--hue), 80%, 60%);
+      top: 50%;
+      left: 50%;
+      opacity: 0.9;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: confettiFall 2s linear forwards;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translate(0,0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(var(--x), var(--y)) rotate(720deg); opacity: 0; }
+    }
+
+    /* --------------------------
+       Responsive mobile
+    -------------------------- */
+    @media (max-width: 600px) {
+      .card {
+        width: 240px;
+        height: 340px;
+      }
+
+      h1 {
+        font-size: 1.1rem;
+        padding: 0 10px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Découvre la carte collector de la Team Citronnade !<br> Touche la carte pour la retourner</h1>
+
+  <div class="card-container">
+    <div class="card" id="citronCard">
+      <div class="side front">
+        <div class="shine"></div>
+      </div>
+      <div class="side back">
+        <div class="shine"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const card = document.getElementById('citronCard');
+    let flipped = false;
+
+    card.addEventListener('click', () => {
+      flipped = !flipped;
+      card.style.transform = flipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+
+      // Effet confettis seulement quand on retourne sur le verso
+      if (flipped) launchConfetti();
+    });
+
+    function launchConfetti() {
+  const confettiCount = 40;
+  const cardRect = card.getBoundingClientRect();
+  const cardTop = cardRect.top;
+  const cardLeft = cardRect.left;
+  const cardWidth = cardRect.width;
+
+  // Palette de jaunes
+  const yellowShades = [
+    '#FFF176', // jaune clair
+    '#FFEB3B', // jaune vif
+    '#FFD600', // jaune doré
+    '#FFEE58', // jaune pâle
+    '#FFF59D'  // jaune pastel
+  ];
+
+  for (let i = 0; i < confettiCount; i++) {
+    const confetti = document.createElement('div');
+    confetti.classList.add('confetti');
+
+    // Choisir une nuance de jaune aléatoire
+    const color = yellowShades[Math.floor(Math.random() * yellowShades.length)];
+    confetti.style.backgroundColor = color;
+
+    // Position initiale : sommet de la carte
+    const startX = cardLeft + Math.random() * cardWidth;
+    const startY = cardTop;
+
+    // Translation finale aléatoire
+    const endX = (Math.random() - 0.5) * 200;
+    const endY = 200 + Math.random() * 200;
+
+    confetti.style.left = `${startX}px`;
+    confetti.style.top = `${startY}px`;
+    confetti.style.setProperty('--x', `${endX}px`);
+    confetti.style.setProperty('--y', `${endY}px`);
+
+    document.body.appendChild(confetti);
+
+    // Supprime après animation
+    setTimeout(() => confetti.remove(), 2000);
+  }
+}
+  </script>
+</body>
+</html>
